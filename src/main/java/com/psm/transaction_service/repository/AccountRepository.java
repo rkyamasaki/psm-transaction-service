@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
+    boolean existsByAccountId(Long accountId);
+
     Optional<Account> findByDocumentNumber(String documentNumber);
 
 }
