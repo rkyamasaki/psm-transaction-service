@@ -32,6 +32,11 @@ public class AccountBalance {
     protected AccountBalance() {
     }
 
+    public AccountBalance(Account account) {
+        this.account = account;
+        this.balance = BigDecimal.ZERO;
+    }
+
     public BigDecimal getBalance() {
         return balance;
     }
