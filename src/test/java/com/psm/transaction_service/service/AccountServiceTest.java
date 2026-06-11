@@ -8,11 +8,13 @@ import com.psm.transaction_service.exception.AccountNotFoundException;
 import com.psm.transaction_service.exception.InvalidDocumentException;
 import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
+import com.psm.transaction_service.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -33,12 +35,13 @@ public class AccountServiceTest {
 
     @Test
     void shouldCreateAccount() {
-        final AccountData accountData = new AccountData(null, "12345678900");
+        final String documentNumber = "12345678900";
+        final AccountData accountData = new AccountData(Optional.empty(), documentNumber);
 
-        when(accountRepository.existsByDocumentNumber("12345678900"))
+        when(accountRepository.existsByDocumentNumber(documentNumber))
                 .thenReturn(false);
 
-        Account savedAccount = new Account("12345678900");
+        Account savedAccount = createTestAccount(1L, documentNumber);
 
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(savedAccount);
@@ -48,12 +51,12 @@ public class AccountServiceTest {
         when(accountBalanceRepository.save(any(AccountBalance.class)))
                 .thenReturn(accountBalance);
 
-        Account result = accountService.createAccount(accountData);
+        AccountData result = accountService.createAccount(accountData);
 
         assertNotNull(result);
-        assertEquals("12345678900", result.getDocumentNumber());
+        assertEquals(documentNumber, result.documentNumber());
 
-        verify(accountRepository).existsByDocumentNumber("12345678900");
+        verify(accountRepository).existsByDocumentNumber(documentNumber);
         verify(accountBalanceRepository).save(any(AccountBalance.class));
         verify(accountRepository).save(any(Account.class));
     }
@@ -90,15 +93,15 @@ public class AccountServiceTest {
     @Test
     void shouldFindAccountById() {
         Long accountId = 1L;
-        Account account = new Account("12345678900");
+        Account account = createTestAccount(1L, "12345678900");
 
         when(accountRepository.findById(accountId))
                 .thenReturn(Optional.of(account));
 
-        Account result = accountService.findAccountById(accountId);
+        AccountData result = accountService.findAccountById(accountId);
 
         assertNotNull(result);
-        assertEquals("12345678900", result.getDocumentNumber());
+        assertEquals("12345678900", result.documentNumber());
 
         verify(accountRepository).findById(accountId);
     }
@@ -116,6 +119,24 @@ public class AccountServiceTest {
         );
 
         verify(accountRepository).findById(accountId);
+    }
+
+    private Account createTestAccount(Long id, String document) {
+        Account account = TestUtils.instantiate(Account.class);
+
+        ReflectionTestUtils.setField(
+                account,
+                "accountId",
+                id
+        );
+
+        ReflectionTestUtils.setField(
+                account,
+                "documentNumber",
+                document
+        );
+
+        return account;
     }
 
 }

@@ -6,7 +6,7 @@ public class Purchase implements FinancialOperation {
 
     @Override
     public BigDecimal operation(BigDecimal balanceAmount, BigDecimal operationAmount) {
-        return balanceAmount.subtract(balanceAmount);
+        return balanceAmount.subtract(operationAmount);
     }
 
     @Override

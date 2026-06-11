@@ -9,6 +9,7 @@ import com.psm.transaction_service.exception.InvalidDocumentException;
 import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountService {
@@ -25,7 +26,8 @@ public class AccountService {
         this.accountBalanceRepository = accountBalanceRepository;
     }
 
-    public Account createAccount(AccountData accountData) {
+    @Transactional
+    public AccountData createAccount(AccountData accountData) {
         final String documentNumber = accountData.documentNumber();
 
         if (!isValidNumber(documentNumber)) {
@@ -38,12 +40,14 @@ public class AccountService {
 
         Account createdAccount = accountRepository.save(new Account(documentNumber));
         createAccountBalance(createdAccount);
-        return createdAccount;
+        return AccountData.from(createdAccount);
     }
 
-    public Account findAccountById(Long accountId) {
-        return accountRepository.findById(accountId)
+    public AccountData findAccountById(Long accountId) {
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        return AccountData.from(account);
     }
 
     private void createAccountBalance(Account account) {

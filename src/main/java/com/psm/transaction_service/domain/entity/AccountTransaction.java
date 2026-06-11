@@ -40,10 +40,16 @@ public class AccountTransaction {
 
     @Column(
             name = "event_date",
-            nullable = false,
-            updatable = false
+            nullable = false
     )
     private LocalDateTime eventDate;
+
+    @Column(
+            name = "idempotency_key",
+            nullable = false,
+            length = 100
+    )
+    private String idempotencyKey;
 
     protected AccountTransaction() {
     }
@@ -51,12 +57,14 @@ public class AccountTransaction {
     public AccountTransaction(
             Account account,
             OperationType operationType,
-            BigDecimal amount
+            BigDecimal amount,
+            String idempotencyKey
     ) {
         this.account = account;
         this.operationType = operationType;
         this.amount = amount;
         this.eventDate = LocalDateTime.now();
+        this.idempotencyKey = idempotencyKey;
     }
 
     public Long getTransactionId() {
@@ -78,4 +86,9 @@ public class AccountTransaction {
     public LocalDateTime getEventDate() {
         return eventDate;
     }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
 }
