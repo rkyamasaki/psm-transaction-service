@@ -41,9 +41,11 @@ public class AccountService {
         return AccountData.from(createdAccount);
     }
 
-    public Account findAccountById(Long accountId) {
-        return accountRepository.findById(accountId)
+    public AccountData findAccountById(Long accountId) {
+        Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        return AccountData.from(account);
     }
 
     private void createAccountBalance(Account account) {

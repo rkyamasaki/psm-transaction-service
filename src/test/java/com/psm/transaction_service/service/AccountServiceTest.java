@@ -93,15 +93,15 @@ public class AccountServiceTest {
     @Test
     void shouldFindAccountById() {
         Long accountId = 1L;
-        Account account = new Account("12345678900");
+        Account account = createTestAccount(1L, "12345678900");
 
         when(accountRepository.findById(accountId))
                 .thenReturn(Optional.of(account));
 
-        Account result = accountService.findAccountById(accountId);
+        AccountData result = accountService.findAccountById(accountId);
 
         assertNotNull(result);
-        assertEquals("12345678900", result.getDocumentNumber());
+        assertEquals("12345678900", result.documentNumber());
 
         verify(accountRepository).findById(accountId);
     }
