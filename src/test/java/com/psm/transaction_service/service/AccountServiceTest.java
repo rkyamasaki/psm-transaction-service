@@ -2,9 +2,11 @@ package com.psm.transaction_service.service;
 
 import com.psm.transaction_service.domain.dto.AccountData;
 import com.psm.transaction_service.domain.entity.Account;
+import com.psm.transaction_service.domain.entity.AccountBalance;
 import com.psm.transaction_service.exception.AccountAlreadyExistsException;
 import com.psm.transaction_service.exception.AccountNotFoundException;
 import com.psm.transaction_service.exception.InvalidDocumentException;
+import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,9 @@ public class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private AccountBalanceRepository accountBalanceRepository;
+
     @InjectMocks
     private AccountService accountService;
 
@@ -38,12 +43,18 @@ public class AccountServiceTest {
         when(accountRepository.save(any(Account.class)))
                 .thenReturn(savedAccount);
 
+        AccountBalance accountBalance = new AccountBalance(savedAccount);
+
+        when(accountBalanceRepository.save(any(AccountBalance.class)))
+                .thenReturn(accountBalance);
+
         Account result = accountService.createAccount(accountData);
 
         assertNotNull(result);
         assertEquals("12345678900", result.getDocumentNumber());
 
         verify(accountRepository).existsByDocumentNumber("12345678900");
+        verify(accountBalanceRepository).save(any(AccountBalance.class));
         verify(accountRepository).save(any(Account.class));
     }
 
