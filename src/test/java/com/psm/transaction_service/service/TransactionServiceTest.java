@@ -11,6 +11,7 @@ import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
 import com.psm.transaction_service.repository.AccountTransactionRepository;
 import com.psm.transaction_service.repository.OperationRepository;
+import com.psm.transaction_service.service.idempotency.IdempotencyService;
 import com.psm.transaction_service.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.*;
 class TransactionServiceTest {
 
     @Mock
-    private IdempotencyCacheService idempotencyCacheService;
+    private IdempotencyService idempotencyService;
 
     @Mock
     private AccountRepository accountRepository;
@@ -63,7 +64,7 @@ class TransactionServiceTest {
         AccountBalance accountBalance = createAccountBalance(new BigDecimal("500.00"));
         OperationType operationType = createOperationType(1, "PURCHASE");
 
-        when(idempotencyCacheService.exists(1L, "idem-123"))
+        when(idempotencyService.exists(1L, "idem-123"))
                 .thenReturn(false);
 
         when(accountRepository.findById(1L))
@@ -112,7 +113,7 @@ class TransactionServiceTest {
         AccountBalance accountBalance = createAccountBalance(new BigDecimal("500.00"));
         OperationType operationType = createOperationType(4, "PAYMENT");
 
-        when(idempotencyCacheService.exists(1L, "idem-456"))
+        when(idempotencyService.exists(1L, "idem-456"))
                 .thenReturn(false);
 
         when(accountRepository.findById(1L))
@@ -160,7 +161,7 @@ class TransactionServiceTest {
                 new BigDecimal("100.00")
         );
 
-        when(idempotencyCacheService.exists(1L, "idem-duplicated"))
+        when(idempotencyService.exists(1L, "idem-duplicated"))
                 .thenReturn(true);
 
         assertThrows(
@@ -184,7 +185,7 @@ class TransactionServiceTest {
                 new BigDecimal("100.00")
         );
 
-        when(idempotencyCacheService.exists(999L, "idem-789"))
+        when(idempotencyService.exists(999L, "idem-789"))
                 .thenReturn(false);
 
         when(accountRepository.findById(999L))

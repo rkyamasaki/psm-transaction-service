@@ -12,16 +12,16 @@ import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
 import com.psm.transaction_service.repository.AccountTransactionRepository;
 import com.psm.transaction_service.repository.OperationRepository;
+import com.psm.transaction_service.service.idempotency.IdempotencyService;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @Service
 public class TransactionService {
 
-    private final IdempotencyCacheService idempotencyCacheService;
+    private final IdempotencyService idempotencyService;
 
     private final AccountRepository accountRepository;
 
@@ -32,13 +32,13 @@ public class TransactionService {
     private final AccountTransactionRepository accountTransactionRepository;
 
     public TransactionService(
-        IdempotencyCacheService idempotencyCacheService,
+        IdempotencyService idempotencyService,
         AccountRepository accountRepository,
         AccountBalanceRepository accountBalanceRepository,
         OperationRepository operationRepository,
         AccountTransactionRepository accountTransactionRepository
     ) {
-        this.idempotencyCacheService = idempotencyCacheService;
+        this.idempotencyService = idempotencyService;
         this.accountRepository = accountRepository;
         this.accountBalanceRepository = accountBalanceRepository;
         this.operationRepository = operationRepository;
@@ -55,7 +55,8 @@ public class TransactionService {
         if (StringUtils.isBlank(idempotencyKey)) {
             throw new IdempotencyKeyNotPresentException();
         }
-        boolean isTransactionAlreadyDone = idempotencyCacheService.exists(accountId, idempotencyKey);
+
+        boolean isTransactionAlreadyDone = idempotencyService.exists(accountId, idempotencyKey);
         if (isTransactionAlreadyDone) {
             throw new TransactionDuplicateException(idempotencyKey);
         }
@@ -82,8 +83,8 @@ public class TransactionService {
         accountBalanceRepository.save(accountBalance);
 
         final BigDecimal finalOperationAmount = financialOperation.retrieveTransactionValue(transactionAmount);
-        final AccountTransaction accountTransaction = new AccountTransaction(account,operationType, finalOperationAmount);
-
+        final AccountTransaction accountTransaction = new AccountTransaction(account,operationType, finalOperationAmount, idempotencyKey);
+        idempotencyService.addOnCache(accountId, idempotencyKey);
         return AccountTransactionData.from(accountTransactionRepository.save(accountTransaction));
     }
 

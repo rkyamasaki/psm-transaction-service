@@ -9,4 +9,6 @@ public interface AccountTransactionRepository extends JpaRepository<AccountTrans
 
     List<AccountTransaction> findByAccountAccountId(Long accountId);
 
+    boolean existsByAccountAccountIdAndIdempotencyKey(Long accountId, String idempotencyKey);
+
 }

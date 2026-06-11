@@ -57,12 +57,14 @@ public class AccountTransaction {
     public AccountTransaction(
             Account account,
             OperationType operationType,
-            BigDecimal amount
+            BigDecimal amount,
+            String idempotencyKey
     ) {
         this.account = account;
         this.operationType = operationType;
         this.amount = amount;
         this.eventDate = LocalDateTime.now();
+        this.idempotencyKey = idempotencyKey;
     }
 
     public Long getTransactionId() {
