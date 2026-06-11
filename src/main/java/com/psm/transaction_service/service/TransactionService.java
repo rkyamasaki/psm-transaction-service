@@ -48,10 +48,58 @@ public class TransactionService {
     public AccountTransactionData createTransaction(AccountTransactionData accountTransactionData) {
         final String idempotencyKey = accountTransactionData.idempotencyKey();
         final Long accountId = accountTransactionData.accountId();
-        final OperationTypeEnum operationTypeEnum = OperationTypeEnum
+        validateRequiredData(idempotencyKey, accountId);
+
+        final OperationTypeEnum operationTypeEnum = retrieveOperatorEnum(accountTransactionData);
+        final Account account = retrieveAccount(accountTransactionData, accountId);
+        final AccountBalance accountBalance = retrienveAccountBalance(accountId);
+        final OperationType operationType = retrieveOperationType(operationTypeEnum);
+
+        final BigDecimal balanceAmount = accountBalance.getBalance();
+        final FinancialOperation financialOperation = operationTypeEnum.getFinancialOperation();
+        final BigDecimal transactionAmount = accountTransactionData.amount();
+        final BigDecimal resultAmount = financialOperation.operation(balanceAmount, transactionAmount);
+
+        validateIfAccountHasBalanceToProceed(resultAmount);
+
+        accountBalance.setBalance(resultAmount);
+        accountBalanceRepository.save(accountBalance);
+
+        final BigDecimal resultOperationAmount = financialOperation.retrieveTransactionValue(transactionAmount);
+        final AccountTransaction accountTransaction = new AccountTransaction(account, operationType, resultOperationAmount, idempotencyKey);
+        idempotencyService.addOnCache(accountId, idempotencyKey);
+        return AccountTransactionData.from(accountTransactionRepository.save(accountTransaction));
+    }
+
+    private void validateIfAccountHasBalanceToProceed(BigDecimal resultAmount) {
+        boolean isInsufficientAmountOnBalance = resultAmount.compareTo(BigDecimal.ZERO) < 0;
+        if (isInsufficientAmountOnBalance) {
+            throw new NegativeBalanceException();
+        }
+    }
+
+    private OperationTypeEnum retrieveOperatorEnum(AccountTransactionData accountTransactionData) {
+        return OperationTypeEnum
                 .fromId(accountTransactionData.operationTypeId()).
                 orElseThrow(() -> new InvalidOperationException(accountTransactionData.operationTypeId()));
+    }
 
+    private OperationType retrieveOperationType(OperationTypeEnum operationTypeEnum) {
+        return operationRepository.findById(operationTypeEnum.getId())
+                .orElseThrow(() -> new InvalidOperationException(operationTypeEnum.getId()));
+    }
+
+    private AccountBalance retrienveAccountBalance(Long accountId) {
+        return accountBalanceRepository.findByAccountAccountId(accountId)
+                .orElseThrow(() -> new AccountBalanceNotFoundException(accountId));
+    }
+
+    private Account retrieveAccount(AccountTransactionData accountTransactionData, Long accountId) {
+        return accountRepository.findById(accountTransactionData.accountId())
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+    }
+
+    private void validateRequiredData(String idempotencyKey, Long accountId) {
         if (StringUtils.isBlank(idempotencyKey)) {
             throw new IdempotencyKeyNotPresentException();
         }
@@ -60,32 +108,6 @@ public class TransactionService {
         if (isTransactionAlreadyDone) {
             throw new TransactionDuplicateException(idempotencyKey);
         }
-
-        final Account account =  accountRepository.findById(accountTransactionData.accountId())
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
-
-        final AccountBalance accountBalance = accountBalanceRepository.findByAccountAccountId(accountId)
-                .orElseThrow(() -> new AccountBalanceNotFoundException(accountId));
-
-        final BigDecimal balanceAmount = accountBalance.getBalance();
-        final FinancialOperation financialOperation = operationTypeEnum.getFinancialOperation();
-        final BigDecimal transactionAmount = accountTransactionData.amount();
-        final BigDecimal result = financialOperation.operation(balanceAmount, transactionAmount);
-
-        if (result.compareTo(BigDecimal.ZERO) < 0) {
-            throw new NegativeBalanceException();
-        }
-
-        final OperationType operationType = operationRepository.findById(operationTypeEnum.getId())
-                .orElseThrow(() -> new InvalidOperationException(operationTypeEnum.getId()));
-
-        accountBalance.setBalance(result);
-        accountBalanceRepository.save(accountBalance);
-
-        final BigDecimal finalOperationAmount = financialOperation.retrieveTransactionValue(transactionAmount);
-        final AccountTransaction accountTransaction = new AccountTransaction(account,operationType, finalOperationAmount, idempotencyKey);
-        idempotencyService.addOnCache(accountId, idempotencyKey);
-        return AccountTransactionData.from(accountTransactionRepository.save(accountTransaction));
     }
 
 
