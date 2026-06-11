@@ -11,6 +11,7 @@ import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
 import com.psm.transaction_service.repository.AccountTransactionRepository;
 import com.psm.transaction_service.repository.OperationRepository;
+import com.psm.transaction_service.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -182,13 +183,13 @@ class TransactionServiceTest {
     }
 
     private AccountBalance accountBalance(BigDecimal balance) {
-        AccountBalance accountBalance = instantiate(AccountBalance.class);
+        AccountBalance accountBalance = TestUtils.instantiate(AccountBalance.class);
         accountBalance.setBalance(balance);
         return accountBalance;
     }
 
     private OperationType operationType(Integer id, String description) {
-        OperationType operationType = instantiate(OperationType.class);
+        OperationType operationType = TestUtils.instantiate(OperationType.class);
 
         ReflectionTestUtils.setField(
                 operationType,
@@ -205,16 +206,4 @@ class TransactionServiceTest {
         return operationType;
     }
 
-    private <T> T instantiate(Class<T> type) {
-        try {
-            Constructor<T> constructor =
-                    type.getDeclaredConstructor();
-
-            constructor.setAccessible(true);
-
-            return constructor.newInstance();
-        } catch (Exception exception) {
-            throw new RuntimeException(exception);
-        }
-    }
 }

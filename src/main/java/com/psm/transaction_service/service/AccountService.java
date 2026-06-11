@@ -25,7 +25,7 @@ public class AccountService {
         this.accountBalanceRepository = accountBalanceRepository;
     }
 
-    public Account createAccount(AccountData accountData) {
+    public AccountData createAccount(AccountData accountData) {
         final String documentNumber = accountData.documentNumber();
 
         if (!isValidNumber(documentNumber)) {
@@ -38,7 +38,7 @@ public class AccountService {
 
         Account createdAccount = accountRepository.save(new Account(documentNumber));
         createAccountBalance(createdAccount);
-        return createdAccount;
+        return AccountData.from(createdAccount);
     }
 
     public Account findAccountById(Long accountId) {
