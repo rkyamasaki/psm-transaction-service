@@ -8,8 +8,6 @@ import com.psm.transaction_service.exception.InvalidDocumentException;
 import com.psm.transaction_service.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class AccountService {
 
