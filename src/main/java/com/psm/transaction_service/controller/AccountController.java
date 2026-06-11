@@ -4,6 +4,7 @@ import com.psm.transaction_service.api.request.CreateAccountRequest;
 import com.psm.transaction_service.api.response.AccountResponse;
 import com.psm.transaction_service.domain.dto.AccountData;
 import com.psm.transaction_service.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountResponse> createAccount(
-            @RequestBody CreateAccountRequest createAccountRequest
+            @Valid @RequestBody CreateAccountRequest createAccountRequest
     ) {
 
         AccountData accountData = AccountData.from(createAccountRequest);

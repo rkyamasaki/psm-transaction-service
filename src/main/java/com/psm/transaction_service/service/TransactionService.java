@@ -15,6 +15,7 @@ import com.psm.transaction_service.repository.OperationRepository;
 import com.psm.transaction_service.service.idempotency.IdempotencyService;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -45,6 +46,7 @@ public class TransactionService {
         this.accountTransactionRepository = accountTransactionRepository;
     }
 
+    @Transactional
     public AccountTransactionData createTransaction(AccountTransactionData accountTransactionData) {
         final String idempotencyKey = accountTransactionData.idempotencyKey();
         final Long accountId = accountTransactionData.accountId();
@@ -90,7 +92,7 @@ public class TransactionService {
     }
 
     private AccountBalance retrieveAccountBalance(Long accountId) {
-        return accountBalanceRepository.findByAccountAccountId(accountId)
+        return accountBalanceRepository.findWithLockByAccountAccountId(accountId)
                 .orElseThrow(() -> new AccountBalanceNotFoundException(accountId));
     }
 

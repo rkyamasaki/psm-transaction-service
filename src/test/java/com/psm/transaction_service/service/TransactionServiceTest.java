@@ -70,7 +70,7 @@ class TransactionServiceTest {
         when(accountRepository.findById(1L))
                 .thenReturn(Optional.of(account));
 
-        when(accountBalanceRepository.findByAccountAccountId(1L))
+        when(accountBalanceRepository.findWithLockByAccountAccountId(1L))
                 .thenReturn(Optional.of(accountBalance));
 
         when(operationRepository.findById(1))
@@ -119,7 +119,7 @@ class TransactionServiceTest {
         when(accountRepository.findById(1L))
                 .thenReturn(Optional.of(account));
 
-        when(accountBalanceRepository.findByAccountAccountId(1L))
+        when(accountBalanceRepository.findWithLockByAccountAccountId(1L))
                 .thenReturn(Optional.of(accountBalance));
 
         when(operationRepository.findById(4))
