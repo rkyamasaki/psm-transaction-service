@@ -1,0 +1,19 @@
+package com.psm.transaction_service.api.request;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+import java.math.BigDecimal;
+
+public record CreateTransactionRequest(
+        @NotNull
+        Long accountId,
+
+        @NotNull
+        Integer operationTypeId,
+
+        @NotNull
+        @Positive
+        BigDecimal amount
+) {
+}
