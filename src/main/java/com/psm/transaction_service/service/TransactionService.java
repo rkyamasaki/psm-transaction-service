@@ -52,7 +52,7 @@ public class TransactionService {
 
         final OperationTypeEnum operationTypeEnum = retrieveOperatorEnum(accountTransactionData);
         final Account account = retrieveAccount(accountTransactionData, accountId);
-        final AccountBalance accountBalance = retrienveAccountBalance(accountId);
+        final AccountBalance accountBalance = retrieveAccountBalance(accountId);
         final OperationType operationType = retrieveOperationType(operationTypeEnum);
 
         final BigDecimal balanceAmount = accountBalance.getBalance();
@@ -89,7 +89,7 @@ public class TransactionService {
                 .orElseThrow(() -> new InvalidOperationException(operationTypeEnum.getId()));
     }
 
-    private AccountBalance retrienveAccountBalance(Long accountId) {
+    private AccountBalance retrieveAccountBalance(Long accountId) {
         return accountBalanceRepository.findByAccountAccountId(accountId)
                 .orElseThrow(() -> new AccountBalanceNotFoundException(accountId));
     }
