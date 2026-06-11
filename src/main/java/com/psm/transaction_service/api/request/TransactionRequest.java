@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record CreateTransactionRequest(
+public record TransactionRequest(
         @NotNull
         Long accountId,
 

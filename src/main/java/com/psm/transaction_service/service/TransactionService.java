@@ -44,7 +44,7 @@ public class TransactionService {
         this.accountTransactionRepository = accountTransactionRepository;
     }
 
-    public AccountTransaction createTransaction(AccountTransactionData accountTransactionData) {
+    public AccountTransactionData createTransaction(AccountTransactionData accountTransactionData) {
         final String idempotencyKey = accountTransactionData.idempotencyKey();
         final Long accountId = accountTransactionData.accountId();
         final OperationTypeEnum operationTypeEnum = OperationTypeEnum
@@ -80,7 +80,8 @@ public class TransactionService {
         final BigDecimal finalOperationAmount = financialOperation.retrieveTransactionValue(transactionAmount);
         final AccountTransaction accountTransaction = new AccountTransaction(account,operationType, finalOperationAmount);
 
-        return accountTransactionRepository.save(accountTransaction);
+        return AccountTransactionData.from(accountTransactionRepository.save(accountTransaction));
     }
+
 
 }

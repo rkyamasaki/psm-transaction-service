@@ -20,11 +20,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,8 +60,8 @@ class TransactionServiceTest {
         );
 
         Account account = new Account("12345678900");
-        AccountBalance accountBalance = accountBalance(new BigDecimal("500.00"));
-        OperationType operationType = operationType(1, "PURCHASE");
+        AccountBalance accountBalance = createAccountBalance(new BigDecimal("500.00"));
+        OperationType operationType = createOperationType(1, "PURCHASE");
 
         when(idempotencyCacheService.exists(1L, "idem-123"))
                 .thenReturn(false);
@@ -75,12 +76,15 @@ class TransactionServiceTest {
                 .thenReturn(Optional.of(operationType));
 
         when(accountTransactionRepository.save(any(AccountTransaction.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                .thenAnswer(invocation -> {
+                    Object argument = invocation.getArgument(0);
+                    return informTransactionIdOnAccountTransaction((AccountTransaction) argument);
+                });
 
-        AccountTransaction result =
+        AccountTransactionData result =
                 transactionService.createTransaction(data);
 
-        assertEquals(new BigDecimal("-100.00"), result.getAmount());
+        assertEquals(new BigDecimal("-100.00"), result.amount());
 
         ArgumentCaptor<AccountTransaction> captor =
                 ArgumentCaptor.forClass(AccountTransaction.class);
@@ -97,7 +101,7 @@ class TransactionServiceTest {
     @Test
     void shouldCreatePaymentTransactionWithPositiveAmount() {
         var data = new AccountTransactionData(
-                null,
+                Optional.empty(),
                 1L,
                 "idem-456",
                 4,
@@ -105,8 +109,8 @@ class TransactionServiceTest {
         );
 
         Account account = new Account("12345678900");
-        AccountBalance accountBalance = accountBalance(new BigDecimal("500.00"));
-        OperationType operationType = operationType(4, "PAYMENT");
+        AccountBalance accountBalance = createAccountBalance(new BigDecimal("500.00"));
+        OperationType operationType = createOperationType(4, "PAYMENT");
 
         when(idempotencyCacheService.exists(1L, "idem-456"))
                 .thenReturn(false);
@@ -120,17 +124,30 @@ class TransactionServiceTest {
         when(operationRepository.findById(4))
                 .thenReturn(Optional.of(operationType));
 
-        when(accountTransactionRepository.save(any(AccountTransaction.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        AccountTransaction result =
+        when(accountTransactionRepository.save(any(AccountTransaction.class)))
+                .thenAnswer(invocation -> {
+                    Object argument = invocation.getArgument(0);
+                    return informTransactionIdOnAccountTransaction((AccountTransaction) argument);
+                });
+
+        AccountTransactionData result =
                 transactionService.createTransaction(data);
 
-        assertEquals(new BigDecimal("100.00"), result.getAmount());
+        assertEquals(new BigDecimal("100.00"), result.amount());
         assertEquals(new BigDecimal("600.00"), accountBalance.getBalance());
 
         verify(accountBalanceRepository).save(accountBalance);
         verify(accountTransactionRepository).save(any(AccountTransaction.class));
+    }
+
+    private static AccountTransaction informTransactionIdOnAccountTransaction(AccountTransaction accountTransaction) {
+        ReflectionTestUtils.setField(
+                accountTransaction,
+                "transactionId",
+                1L
+        );
+        return accountTransaction;
     }
 
     @Test
@@ -182,13 +199,54 @@ class TransactionServiceTest {
                 .save(any(AccountTransaction.class));
     }
 
-    private AccountBalance accountBalance(BigDecimal balance) {
+    private AccountTransaction createAccountTransaction(
+            Long transactionId,
+            Account account,
+            OperationType operationType,
+            BigDecimal amount,
+            LocalDateTime creationDate
+    ) {
+        AccountTransaction accountTransaction = TestUtils.instantiate(AccountTransaction.class);
+        ReflectionTestUtils.setField(
+                accountTransaction,
+                "transactionId",
+                transactionId
+        );
+
+        ReflectionTestUtils.setField(
+                accountTransaction,
+                "account",
+                account
+        );
+
+        ReflectionTestUtils.setField(
+                accountTransaction,
+                "operationType",
+                operationType
+        );
+
+        ReflectionTestUtils.setField(
+                accountTransaction,
+                "amount",
+                amount
+        );
+
+        ReflectionTestUtils.setField(
+                accountTransaction,
+                "eventDate",
+                creationDate
+        );
+
+        return accountTransaction;
+    }
+
+    private AccountBalance createAccountBalance(BigDecimal balance) {
         AccountBalance accountBalance = TestUtils.instantiate(AccountBalance.class);
         accountBalance.setBalance(balance);
         return accountBalance;
     }
 
-    private OperationType operationType(Integer id, String description) {
+    private OperationType createOperationType(Integer id, String description) {
         OperationType operationType = TestUtils.instantiate(OperationType.class);
 
         ReflectionTestUtils.setField(
