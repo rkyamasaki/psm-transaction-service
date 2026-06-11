@@ -6,7 +6,7 @@ public class Withdrawal implements FinancialOperation {
 
     @Override
     public BigDecimal operation(BigDecimal balanceAmount, BigDecimal operationAmount) {
-        return balanceAmount.subtract(balanceAmount);
+        return balanceAmount.subtract(operationAmount);
     }
 
     @Override

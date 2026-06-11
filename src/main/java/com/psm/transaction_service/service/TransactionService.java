@@ -12,6 +12,7 @@ import com.psm.transaction_service.repository.AccountBalanceRepository;
 import com.psm.transaction_service.repository.AccountRepository;
 import com.psm.transaction_service.repository.AccountTransactionRepository;
 import com.psm.transaction_service.repository.OperationRepository;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -51,6 +52,9 @@ public class TransactionService {
                 .fromId(accountTransactionData.operationTypeId()).
                 orElseThrow(() -> new InvalidOperationException(accountTransactionData.operationTypeId()));
 
+        if (StringUtils.isBlank(idempotencyKey)) {
+            throw new IdempotencyKeyNotPresentException();
+        }
         boolean isTransactionAlreadyDone = idempotencyCacheService.exists(accountId, idempotencyKey);
         if (isTransactionAlreadyDone) {
             throw new TransactionDuplicateException(idempotencyKey);

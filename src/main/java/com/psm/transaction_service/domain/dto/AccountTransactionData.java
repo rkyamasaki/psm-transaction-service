@@ -1,6 +1,7 @@
 package com.psm.transaction_service.domain.dto;
 
 import com.psm.transaction_service.api.request.TransactionRequest;
+import com.psm.transaction_service.api.response.TransactionResponse;
 import com.psm.transaction_service.domain.entity.AccountTransaction;
 
 import java.math.BigDecimal;
@@ -31,6 +32,15 @@ public record AccountTransactionData(
                 accountTransaction.getIdempotencyKey(),
                 accountTransaction.getOperationType().getOperationTypeId(),
                 accountTransaction.getAmount()
+        );
+    }
+
+    public TransactionResponse toResponse() {
+        return new TransactionResponse(
+                this.transactionId.orElse(null),
+                this.accountId,
+                this.operationTypeId,
+                this.amount
         );
     }
 
