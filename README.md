@@ -52,7 +52,7 @@ After login:
 * Access the container dashboard
 * Monitor logs, volumes, networks and container status
 
-### Run application
+### Run application local
 
 ```bash
 ./gradlew bootRun
@@ -62,6 +62,32 @@ Application will be available at:
 
 ```text
 http://localhost:8081
+```
+---
+## Running on docker container
+This project has a specific directory if you want to execute the app on docker
+
+You can see those files on `dockerized` directory
+
+To run the app in docker just run this command:
+```text
+docker compose -f dockerized/docker-compose.yml up -d --build
+```
+
+To stop the container, just run this command:
+```text
+docker compose -f dockerized/docker-compose.yml down
+```
+
+Application will be available at:
+
+```text
+http://localhost:8081
+```
+
+Portainer will be available at:
+```
+http://localhost:9000
 ```
 
 ---
@@ -158,4 +184,3 @@ Generate build artifact:
 ```bash
 ./gradlew clean build
 ```
-
