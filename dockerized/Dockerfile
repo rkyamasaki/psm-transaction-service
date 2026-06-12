@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk AS build
+FROM amazoncorretto:21 AS build
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . .
 
 RUN ./gradlew clean bootJar -x test
 
-FROM eclipse-temurin:21-jre
+FROM amazoncorretto:21
 
 WORKDIR /app
 

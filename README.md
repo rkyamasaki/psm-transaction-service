@@ -56,7 +56,7 @@ After login:
 Build the project
 
 ```bash
-./gradlew clean buiçd
+./gradlew clean build
 ```
 
 Run the application
