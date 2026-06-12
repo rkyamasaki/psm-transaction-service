@@ -53,7 +53,13 @@ After login:
 * Monitor logs, volumes, networks and container status
 
 ### Run application local
+Build the project
 
+```bash
+./gradlew clean build
+```
+
+Run the application
 ```bash
 ./gradlew bootRun
 ```
@@ -70,16 +76,14 @@ This project has a specific directory if you want to execute the app on docker
 You can see those files on `dockerized` directory
 
 To run the app in docker just run this command:
-```text
+```bash
 docker compose -f dockerized/docker-compose.yml up -d --build
 ```
 
 To stop the container, just run this command:
-```text
+```bash
 docker compose -f dockerized/docker-compose.yml down
 ```
-Note: To avoid conflicts, make sure that no containers from a previous execution of this 
-project are running before starting the environment.
 
 Application will be available at:
 
@@ -157,7 +161,7 @@ You can import the Postman collection to help test the application.
 The collection file `PSM-Transaction-service-tests.postman_collection.json`
 is located in the `postman` directory.
 
-The requests for the `/transactions` endpoint automatically 
+Note: The requests for the `/transactions` endpoint automatically 
 generate a random Idempotency-Key and populate the request header before execution.
 
 ---
