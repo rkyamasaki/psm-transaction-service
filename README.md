@@ -79,6 +79,16 @@ To stop the container, just run this command:
 docker compose -f dockerized/docker-compose.yml down
 ```
 
+Application will be available at:
+
+```text
+http://localhost:8081
+```
+
+Portainer will be available at:
+```
+http://localhost:9000
+```
 
 ---
 
