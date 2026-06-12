@@ -78,6 +78,8 @@ To stop the container, just run this command:
 ```text
 docker compose -f dockerized/docker-compose.yml down
 ```
+Note: To avoid conflicts, make sure that no containers from a previous execution of this 
+project are running before starting the environment.
 
 Application will be available at:
 
