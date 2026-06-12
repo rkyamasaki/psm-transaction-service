@@ -122,6 +122,7 @@ Response
   "amount": 100.00
 }
 ```
+---
 ## Postman Collections
 You can import the Postman collection to help test the application.
 
@@ -130,6 +131,20 @@ is located in the `postman` directory.
 
 The requests for the `/transactions` endpoint automatically 
 generate a random Idempotency-Key and populate the request header before execution.
+
+---
+## API Documentation
+
+Open Api is available at:
+```text
+http://localhost:8081/v3/api-docs
+```
+
+Swagger UI is available at:
+
+```text
+http://localhost:8081/swagger-ui.html
+```
 
 ---
 ## Running Tests
