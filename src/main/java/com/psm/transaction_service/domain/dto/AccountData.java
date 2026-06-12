@@ -1,6 +1,6 @@
 package com.psm.transaction_service.domain.dto;
 
-import com.psm.transaction_service.api.request.CreateAccountRequest;
+import com.psm.transaction_service.api.request.AccountRequest;
 import com.psm.transaction_service.api.response.AccountResponse;
 import com.psm.transaction_service.domain.entity.Account;
 
@@ -11,7 +11,7 @@ public record AccountData(
     String documentNumber
 ) {
 
-    public static AccountData from(CreateAccountRequest createAccountRequest) {
+    public static AccountData from(AccountRequest createAccountRequest) {
         return new AccountData(Optional.empty(), createAccountRequest.documentNumber());
     }
 

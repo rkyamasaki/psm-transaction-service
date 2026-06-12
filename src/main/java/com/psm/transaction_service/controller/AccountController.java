@@ -1,6 +1,6 @@
 package com.psm.transaction_service.controller;
 
-import com.psm.transaction_service.api.request.CreateAccountRequest;
+import com.psm.transaction_service.api.request.AccountRequest;
 import com.psm.transaction_service.api.response.AccountResponse;
 import com.psm.transaction_service.domain.dto.AccountData;
 import com.psm.transaction_service.service.AccountService;
@@ -23,7 +23,7 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountResponse> createAccount(
-            @Valid @RequestBody CreateAccountRequest createAccountRequest
+            @Valid @RequestBody AccountRequest createAccountRequest
     ) {
 
         AccountData accountData = AccountData.from(createAccountRequest);
