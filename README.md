@@ -53,7 +53,13 @@ After login:
 * Monitor logs, volumes, networks and container status
 
 ### Run application local
+Build the project
 
+```bash
+./gradlew clean buiçd
+```
+
+Run the application
 ```bash
 ./gradlew bootRun
 ```
@@ -70,12 +76,12 @@ This project has a specific directory if you want to execute the app on docker
 You can see those files on `dockerized` directory
 
 To run the app in docker just run this command:
-```text
+```bash
 docker compose -f dockerized/docker-compose.yml up -d --build
 ```
 
 To stop the container, just run this command:
-```text
+```bash
 docker compose -f dockerized/docker-compose.yml down
 ```
 
