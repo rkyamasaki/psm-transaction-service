@@ -161,7 +161,7 @@ You can import the Postman collection to help test the application.
 The collection file `PSM-Transaction-service-tests.postman_collection.json`
 is located in the `postman` directory.
 
-The requests for the `/transactions` endpoint automatically 
+Note: The requests for the `/transactions` endpoint automatically 
 generate a random Idempotency-Key and populate the request header before execution.
 
 ---
